@@ -1,0 +1,79 @@
+version: "3"
+
+services:
+  plex:
+    container_name: plex
+    image: plexinc/pms-docker:latest
+    runtime: nvidia # needed for NVIDIA hardware acceleration
+    restart: unless-stopped
+    ports:
+      - 32400:32400/tcp
+      - 3005:3005/tcp
+      - 8324:8324/tcp
+      - 32469:32469/tcp
+      - 1900:1900/udp
+      - 32410:32410/udp
+      - 32412:32412/udp
+      - 32413:32413/udp
+      - 32414:32414/udp
+    environment:
+      - TZ=${TZ:-America/New_York}
+      - PLEX_CLAIM=${CLAIM_ID}
+      - ADVERTISE_IP=${ADVERTISE_IP}
+      - NVIDIA_VISIBLE_DEVICES=all # needed for NVIDIA hardware acceleration
+    volumes:
+      - ${VOLUME_PATH}/plex/database:/config
+      - ${VOLUME_PATH}/plex/transcode:/transcode
+      - ${VOLUME_PATH}/plex/media:/data
+      - ${MEDIA_DIR}:/disk1
+
+  pihole:
+    container_name: pihole
+    image: cbcrowe/pihole-unbound:latest
+    hostname: ${HOSTNAME}
+    domainname: ${DOMAIN_NAME}
+    restart: unless-stopped
+    depends_on:
+      - dhcphelper
+    cap_add:
+      - NET_ADMIN
+    networks:
+      backend:
+        ipv4_address: '172.31.0.100'
+    ports:
+      - 443:443/tcp
+      - 53:53/tcp
+      - 53:53/udp
+      - ${PIHOLE_WEBPORT:-80}:80/tcp
+      # - 5335:5335/tcp # Uncomment to enable unbound access on local server
+      # - 22/tcp # Uncomment to enable SSH 80:80/tcp
+    environment:
+      - FTLCONF_LOCAL_IPV4=${FTLCONF_LOCAL_IPV4}
+      - TZ=${TZ:-America/New_York}
+      - WEBPASSWORD=${WEBPASSWORD}
+      - WEBTHEME=${WEBTHEME:-default-dark}
+      - REV_SERVER=${REV_SERVER:-false}
+      - REV_SERVER_TARGET=${REV_SERVER_TARGET}
+      - REV_SERVER_DOMAIN=${REV_SERVER_DOMAIN}
+      - REV_SERVER_CIDR=${REV_SERVER_CIDR}
+      - PIHOLE_DNS_=127.0.0.1#5335
+      - DNSSEC="true"
+      - DNSMASQ_LISTENING=all
+    volumes:
+      - ${VOLUME_PATH}/pihole/pihole:/etc/pihole:rw
+      - ${VOLUME_PATH}/pihole/dnsmasq.d:/etc/dnsmasq.d:rw
+      - /etc/resolv.conf:/etc/resolv.conf
+
+  dhcphelper:
+    build: ./dhcp-helper
+    restart: unless-stopped
+    network_mode: "host"
+    command: -s 172.31.0.100
+    cap_add:
+      - NET_ADMIN
+
+networks:
+  backend:
+    ipam:
+      config:
+        - subnet: 172.31.0.0/16
