@@ -27,6 +27,15 @@ services:
       - ${VOLUME_PATH}/plex/media:/data
       - ${MEDIA_DIR}:/disk1
 
+  kitana:
+    image: pannal/kitana:latest
+    container_name: kitana
+    restart: unless-stopped
+    ports:
+      - 31337:31337/tcp
+    volumes:
+      - ${VOLUME_PATH}/kitana:/app/data
+
   pihole:
     container_name: pihole
     image: cbcrowe/pihole-unbound:latest
