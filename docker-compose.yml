@@ -71,7 +71,7 @@ services:
     volumes:
       - ${VOLUME_PATH}/pihole/pihole:/etc/pihole:rw
       - ${VOLUME_PATH}/pihole/dnsmasq.d:/etc/dnsmasq.d:rw
-      - /etc/resolv.conf:/etc/resolv.conf
+      - ${VOLUME_PATH}/pihole/resolv.conf:/etc/resolv.conf
 
   dhcphelper:
     build: ./dhcp-helper
