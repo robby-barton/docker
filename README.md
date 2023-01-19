@@ -27,11 +27,16 @@ If using NVIDIA hardware acceleration then make sure to install the [NVIDIA dock
 | `ADVERTISE_IP` | Should be just `"<host_ip>:32400/"` |
 | `MEDIA_DIR` | Directory with the media for plex to use. |
 
+### kitana
+Container to run [kitana](https://github.com/pannal/Kitana) for Plex.
+
 ### pihole
 Container to run [pi-hole](https://pi-hole.net/) for the network. The container being used additionally has [Unbound](https://www.nlnetlabs.nl/projects/unbound/about/) installed to allow my pi-hole to be its own recursive resolver instead of needing external DNS. The [container repo](https://github.com/chriscrowe/docker-pihole-unbound) has an example of using both in a [single container](https://github.com/chriscrowe/docker-pihole-unbound/blob/main/one-container/docker-compose.yaml) which I used as a base for my setup.
 
 #### Setup
 `systemd-resolved` is most likely listening on port 53 so it needs to be freed. Open `/etc/systemd/resolved.conf`, uncomment `DNSStubListener` and set it to `no`. Then restart the service: `sudo systemctl restart systemd-resolved`.
+
+If the pihole will also be acting as the DHCP server for the network then follow the setup for [dhcphelper](#dhcp-helper). Additionally make sure to update the IP in [07-dhcp-options.conf](pihole/dnsmasq.d/07-dhcp-options.conf) to reflect the IP of the pihole. This makes sure the pihole's IP is given to the client as the DNS server during the IP assignment.
 
 #### Env Vars
 | Var | Description |
