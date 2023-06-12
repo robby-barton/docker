@@ -11,24 +11,9 @@ This set of environment variables are generally used by all or multiple of my co
 | --- | --- |
 | `TZ` | Timezone to use (e.g. `America/New_York`) |
 | `VOLUME_PATH` | Path to where docker volumes are stored (should be repo path) |
+| `MEDIA_DIR` | Path to media for Starr services |
 
 ## Containers
-
-### plex
-Container to run my [plex](https://www.plex.tv/) media server.
-
-#### Requirements
-If using NVIDIA hardware acceleration then make sure to install the [NVIDIA docker runtime](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html).
-
-#### Env Vars
-| Var | Description |
-| --- | --- |
-| `CLAIM_ID` | Used for setting up plex server. Only needed the first time. |
-| `ADVERTISE_IP` | Should be just `"<host_ip>:32400/"` |
-| `MEDIA_DIR` | Directory with the media for plex to use. |
-
-### kitana
-Container to run [kitana](https://github.com/pannal/Kitana) for Plex.
 
 ### pihole
 Container to run [pi-hole](https://pi-hole.net/) for the network. The container being used additionally has [Unbound](https://www.nlnetlabs.nl/projects/unbound/about/) installed to allow my pi-hole to be its own recursive resolver instead of needing external DNS. The [container repo](https://github.com/chriscrowe/docker-pihole-unbound) has an example of using both in a [single container](https://github.com/chriscrowe/docker-pihole-unbound/blob/main/one-container/docker-compose.yaml) which I used as a base for my setup.
@@ -58,3 +43,44 @@ DHCP relay used by `pihole` that allows it to stay in `network_mode: "bridged"` 
 The [`Dockerfile`](dhcp-helper/Dockerfile) builds a container that installs [`dhcp-helper`](https://manpages.ubuntu.com/manpages/trusty/man8/dhcp-helper.8.html) and runs it on startup.
 
 May need to open port 67 on the host: `sudo ufw allow 67`.
+
+### Servarr
+Servarr is a collections of services for media management, the services I am using include:
+* Sonarr - TV
+* Radarr - Movies
+* Prowlarr - Indexer management
+* Gluetun - VPN container
+* qBittorent - Bittorrent client
+* SABnzbd - Usenet reader
+* Jellyfin - Media server
+
+#### Env Vars
+Sonarr, Radarr, qBittorrent, SABnzbd, and Jellyfin all require access to a share using the following env var:
+
+| Var | Description |
+| --- | --- |
+| MEDIA_DIR | Path to media |
+
+The media directory structure should be the following:
+```sh
+media
+|  movies
+|  tv
+torrents
+|  movies
+|  tv
+usenet
+|  incomplete
+|  complete
+|  |  movies
+|  |  tv
+```
+
+Gluetun requires the following for creating the VPN connection:
+| Var | Description |
+| --- | --- |
+| VPN_PROVIDER | VPN provider |
+| WIREGUARD_PRIVATE_KEY | Private key from VPN provider |
+| WIREGUARD_PRESHARED_KEY | Preshared key from VPN provider |
+| WIREGUARD_ADDRESSES | Addresses from VPN provider|
+| SERVER_COUNTRIES | Countries for VPN |

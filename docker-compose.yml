@@ -1,41 +1,6 @@
 version: "3"
 
 services:
-  plex:
-    container_name: plex
-    image: plexinc/pms-docker:latest
-    runtime: nvidia # needed for NVIDIA hardware acceleration
-    restart: unless-stopped
-    ports:
-      - 32400:32400/tcp
-      - 3005:3005/tcp
-      - 8324:8324/tcp
-      - 32469:32469/tcp
-      - 1900:1900/udp
-      - 32410:32410/udp
-      - 32412:32412/udp
-      - 32413:32413/udp
-      - 32414:32414/udp
-    environment:
-      - TZ=${TZ:-America/New_York}
-      - PLEX_CLAIM=${CLAIM_ID}
-      - ADVERTISE_IP=${ADVERTISE_IP}
-      - NVIDIA_VISIBLE_DEVICES=all # needed for NVIDIA hardware acceleration
-    volumes:
-      - ${VOLUME_PATH}/plex/database:/config
-      - ${VOLUME_PATH}/plex/transcode:/transcode
-      - ${VOLUME_PATH}/plex/media:/data
-      - ${MEDIA_DIR}:/disk1
-
-  kitana:
-    image: pannal/kitana:latest
-    container_name: kitana
-    restart: unless-stopped
-    ports:
-      - 31337:31337/tcp
-    volumes:
-      - ${VOLUME_PATH}/kitana:/app/data
-
   pihole:
     container_name: pihole
     image: cbcrowe/pihole-unbound:latest
@@ -80,6 +45,142 @@ services:
     command: -s 172.31.0.100
     cap_add:
       - NET_ADMIN
+
+  jellyfin:
+    image: linuxserver/jellyfin:latest
+    container_name: jellyfin
+    network_mode: host
+    devices:
+      - /dev/dri:/dev/dri
+    environment:
+      - PUID=13000
+      - PGID=13000
+      - UMASK=002
+      - TZ=${TZ:-America/New_York}
+    volumes:
+      - ${VOLUME_PATH}/config/jellyfin/config:/config
+      - ${VOLUME_PATH}/config/jellyfin/cache:/cache
+      - ${MEDIA_DIR}/media:/data
+    ports:
+      - "8096:8096"
+    restart: unless-stopped
+
+  sonarr:
+    image: linuxserver/sonarr:latest
+    container_name: sonarr
+    environment:
+      - PUID=13001
+      - PGID=13000
+      - UMASK=002
+      - TZ=${TZ:-America/New_York}
+    volumes:
+      - ${VOLUME_PATH}/config/sonarr:/config
+      - ${MEDIA_DIR}:/data
+    ports:
+      - "8989:8989"
+    restart: unless-stopped
+
+  radarr:
+    image: linuxserver/radarr:latest
+    container_name: radarr
+    environment:
+      - PUID=13002
+      - PGID=13000
+      - UMASK=002
+      - TZ=${TZ:-America/New_York}
+    volumes:
+      - ${VOLUME_PATH}/config/radarr:/config
+      - ${MEDIA_DIR}:/data
+    ports:
+      - "7878:7878"
+    restart: unless-stopped
+
+  bazarr:
+    image: linuxserver/bazarr:latest
+    container_name: bazarr
+    environment:
+      - PUID=13003
+      - PGID=13000
+      - UMASK=002
+      - TZ=${TZ:-America/New_York}
+    volumes:
+      - ${VOLUME_PATH}/config/bazarr:/config
+      - ${MEDIA_DIR}/media/:/data/media
+    ports:
+      - "6767:6767"
+    restart: unless-stopped
+
+  prowlarr:
+    image: linuxserver/prowlarr:latest
+    container_name: prowlarr
+    environment:
+      - PUID=13006
+      - PGID=13000
+      - UMASK=002
+      - TZ=${TZ:-America/New_York}
+    volumes:
+      - ${VOLUME_PATH}/config/prowlarr:/config
+    ports:
+      - "9696:9696"
+    restart: unless-stopped
+
+  gluetun:
+    image: qmcgaw/gluetun:latest
+    container_name: gluetun
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    ports:
+      # - 8888:8888/tcp # HTTP proxy
+      # - 8388:8388/tcp # Shadowsocks
+      # - 8388:8388/udp # Shadowsocks
+      - 8090:8090 # port for qbittorrent
+      - 41589:41589
+    volumes:
+      - ${VOLUME_PATH}/gluetun:/gluetun
+    environment:
+      - VPN_SERVICE_PROVIDER=${VPN_PROVIDER}
+      - VPN_TYPE=wireguard
+      - WIREGUARD_PRIVATE_KEY=${WIREGUARD_PRIVATE_KEY}
+      - WIREGUARD_PRESHARED_KEY=${WIREGUARD_PRESHARED_KEY}
+      - WIREGUARD_ADDRESSES=${WIREGUARD_ADDRESSES}
+      - SERVER_COUNTRIES=${SERVER_COUNTRIES}
+      - TZ=${TZ:-America/New_York}
+      - HTTPPROXY=off #change to on if you wish to enable
+      - SHADOWSOCKS=off #change to on if you wish to enable
+      # - FIREWALL_OUTBOUND_SUBNETS=172.20.0.0/16,192.168.0.0/24 #change this in line with your subnet see note on guide.
+    restart: unless-stopped
+
+  qbittorrent:
+    image: linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    environment:
+      - PUID=13005
+      - PGID=13000
+      - UMASK=002
+      - TZ=${TZ:-America/New_York}
+      - WEBUI_PORT=8090
+    volumes:
+      - ${VOLUME_PATH}/config/qbittorrent:/config
+      - ${MEDIA_DIR}/torrents:/data/torrents
+    network_mode: service:gluetun # run on the vpn network
+    restart: unless-stopped
+
+  sabnzbd:
+    image: linuxserver/sabnzbd:latest
+    container_name: sabnzbd
+    environment:
+      - PUID=13004
+      - PGID=13000
+      - UMASK=002
+      - TZ=${TZ:-America/New_York}
+    volumes:
+      - ${VOLUME_PATH}/config/sabnzbd:/config
+      - ${MEDIA_DIR}/usenet:/data/usenet
+    ports:
+      - 8080:8080
+    restart: unless-stopped
 
 networks:
   backend:
