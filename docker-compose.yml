@@ -39,7 +39,7 @@ services:
       - ${VOLUME_PATH}/pihole/resolv.conf:/etc/resolv.conf
 
   dhcphelper:
-    build: ./dhcp-helper
+    build: ./config/dhcp-helper
     restart: unless-stopped
     network_mode: "host"
     command: -s 172.31.0.100
@@ -58,8 +58,8 @@ services:
       - UMASK=002
       - TZ=${TZ:-America/New_York}
     volumes:
-      - ${VOLUME_PATH}/config/jellyfin/config:/config
-      - ${VOLUME_PATH}/config/jellyfin/cache:/cache
+      - ${VOLUME_PATH}/jellyfin/config:/config
+      - ${VOLUME_PATH}/jellyfin/cache:/cache
       - ${MEDIA_DIR}/media:/data
     ports:
       - "8096:8096"
@@ -74,7 +74,7 @@ services:
       - UMASK=002
       - TZ=${TZ:-America/New_York}
     volumes:
-      - ${VOLUME_PATH}/config/sonarr:/config
+      - ${VOLUME_PATH}/sonarr:/config
       - ${MEDIA_DIR}:/data
     ports:
       - "8989:8989"
@@ -89,7 +89,7 @@ services:
       - UMASK=002
       - TZ=${TZ:-America/New_York}
     volumes:
-      - ${VOLUME_PATH}/config/radarr:/config
+      - ${VOLUME_PATH}/radarr:/config
       - ${MEDIA_DIR}:/data
     ports:
       - "7878:7878"
@@ -104,7 +104,7 @@ services:
       - UMASK=002
       - TZ=${TZ:-America/New_York}
     volumes:
-      - ${VOLUME_PATH}/config/bazarr:/config
+      - ${VOLUME_PATH}/bazarr:/config
       - ${MEDIA_DIR}/media/:/data/media
     ports:
       - "6767:6767"
@@ -119,7 +119,7 @@ services:
       - UMASK=002
       - TZ=${TZ:-America/New_York}
     volumes:
-      - ${VOLUME_PATH}/config/prowlarr:/config
+      - ${VOLUME_PATH}/prowlarr:/config
     ports:
       - "9696:9696"
     restart: unless-stopped
@@ -162,7 +162,7 @@ services:
       - TZ=${TZ:-America/New_York}
       - WEBUI_PORT=8090
     volumes:
-      - ${VOLUME_PATH}/config/qbittorrent:/config
+      - ${VOLUME_PATH}/qbittorrent:/config
       - ${MEDIA_DIR}/torrents:/data/torrents
     network_mode: service:gluetun # run on the vpn network
     restart: unless-stopped
@@ -176,7 +176,7 @@ services:
       - UMASK=002
       - TZ=${TZ:-America/New_York}
     volumes:
-      - ${VOLUME_PATH}/config/sabnzbd:/config
+      - ${VOLUME_PATH}/sabnzbd:/config
       - ${MEDIA_DIR}/usenet:/data/usenet
     ports:
       - 8080:8080
