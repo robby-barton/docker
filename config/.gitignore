@@ -1,2 +1,5 @@
 *
 !.gitignore
+!dhcp-helper
+!pihole
+!recyclarr
