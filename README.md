@@ -46,16 +46,17 @@ May need to open port 67 on the host: `sudo ufw allow 67`.
 
 ### Servarr
 Servarr is a collections of services for media management, the services I am using include:
-* Sonarr - TV
+* Sonarr - TV, Anime
 * Radarr - Movies
+* Recyclarr - Formats/Quality/Profile manager for Sonarr and Radarr
 * Prowlarr - Indexer management
 * Gluetun - VPN container
 * qBittorent - Bittorrent client
 * SABnzbd - Usenet reader
-* Jellyfin - Media server
+* Plex - Media server
 
 #### Env Vars
-Sonarr, Radarr, qBittorrent, SABnzbd, and Jellyfin all require access to a share using the following env var:
+Sonarr, Radarr, qBittorrent, SABnzbd, and Plex all require access to a share using the following env var:
 
 | Var | Description |
 | --- | --- |
@@ -64,23 +65,29 @@ Sonarr, Radarr, qBittorrent, SABnzbd, and Jellyfin all require access to a share
 The media directory structure should be the following:
 ```sh
 media
+|  anime
 |  movies
 |  tv
 torrents
+|  anime
 |  movies
 |  tv
 usenet
 |  incomplete
 |  complete
+|  |  anime
 |  |  movies
 |  |  tv
 ```
 
-Gluetun requires the following for creating the VPN connection:
+Gluetun requires the following for creating the VPN connection (currently a ProtonVPN WireGuard connection):
 | Var | Description |
 | --- | --- |
-| VPN_PROVIDER | VPN provider |
-| WIREGUARD_PRIVATE_KEY | Private key from VPN provider |
-| WIREGUARD_PRESHARED_KEY | Preshared key from VPN provider |
-| WIREGUARD_ADDRESSES | Addresses from VPN provider|
-| SERVER_COUNTRIES | Countries for VPN |
+| `VPN_ENDPOINT_IP` | Endpoint IP from WireGuard config |
+| `VPN_ENDPOINT_PORT` | Endpoint Port from WireGuard config |
+| `PROTONVPN_PRIVATE_KEY` | Private key from WireGuard config |
+| `PROTONVPN_PUBLIC_KEY` | Public key from WireGuard config |
+| `PROTONVPN_ADDRESSES` | Addresses from WireGuard config |
+| `PROTONVPN_DNS_ADDRESSES` | DNS Addresses from WireGuard config |
+
+When creating the WireGuard config make sure to have Port Forwarding enabled, then when Gluetun is running check `config/gluetun/forwarded_port` and add the port in qBittorrent.
