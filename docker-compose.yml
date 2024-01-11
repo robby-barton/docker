@@ -46,9 +46,9 @@ services:
     cap_add:
       - NET_ADMIN
 
-  jellyfin:
-    image: linuxserver/jellyfin:latest
-    container_name: jellyfin
+  plex:
+    image: lscr.io/linuxserver/plex:latest
+    container_name: plex
     network_mode: host
     devices:
       - /dev/dri:/dev/dri
@@ -57,16 +57,14 @@ services:
       - PGID=13000
       - UMASK=002
       - TZ=${TZ:-America/New_York}
+      - VERSION=docker
     volumes:
-      - ${VOLUME_PATH}/jellyfin/config:/config
-      - ${VOLUME_PATH}/jellyfin/cache:/cache
+      - ${VOLUME_PATH}/plex/config:/config
       - ${MEDIA_DIR}/media:/data
-    ports:
-      - "8096:8096"
     restart: unless-stopped
 
   sonarr:
-    image: linuxserver/sonarr:latest
+    image: lscr.io/linuxserver/sonarr:latest
     container_name: sonarr
     environment:
       - PUID=13001
@@ -80,8 +78,23 @@ services:
       - "8989:8989"
     restart: unless-stopped
 
+  animarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: animarr
+    environment:
+      - PUID=13007
+      - PGID=13000
+      - UMASK=002
+      - TZ=${TZ:-America/New_York}
+    volumes:
+      - ${VOLUME_PATH}/animarr:/config
+      - ${MEDIA_DIR}:/data
+    ports:
+      - "9898:8989"
+    restart: unless-stopped
+
   radarr:
-    image: linuxserver/radarr:latest
+    image: lscr.io/linuxserver/radarr:latest
     container_name: radarr
     environment:
       - PUID=13002
@@ -96,7 +109,7 @@ services:
     restart: unless-stopped
 
   bazarr:
-    image: linuxserver/bazarr:latest
+    image: lscr.io/linuxserver/bazarr:latest
     container_name: bazarr
     environment:
       - PUID=13003
@@ -111,7 +124,7 @@ services:
     restart: unless-stopped
 
   prowlarr:
-    image: linuxserver/prowlarr:latest
+    image: lscr.io/linuxserver/prowlarr:latest
     container_name: prowlarr
     environment:
       - PUID=13006
@@ -122,6 +135,16 @@ services:
       - ${VOLUME_PATH}/prowlarr:/config
     ports:
       - "9696:9696"
+    restart: unless-stopped
+
+  recyclarr:
+    image: ghcr.io/recyclarr/recyclarr
+    container_name: recyclarr
+    user: 1000:1000
+    volumes:
+      - ${VOLUME_PATH}/recyclarr:/config
+    environment:
+      - TZ=${TZ:-America/New_York}
     restart: unless-stopped
 
   gluetun:
@@ -136,16 +159,19 @@ services:
       # - 8388:8388/tcp # Shadowsocks
       # - 8388:8388/udp # Shadowsocks
       - 8090:8090 # port for qbittorrent
-      - 41589:41589
     volumes:
-      - ${VOLUME_PATH}/gluetun:/gluetun
+      - ${VOLUME_PATH}/gluetun:/tmp/gluetun
     environment:
-      - VPN_SERVICE_PROVIDER=${VPN_PROVIDER}
+      - VPN_SERVICE_PROVIDER=custom
       - VPN_TYPE=wireguard
-      - WIREGUARD_PRIVATE_KEY=${WIREGUARD_PRIVATE_KEY}
-      - WIREGUARD_PRESHARED_KEY=${WIREGUARD_PRESHARED_KEY}
-      - WIREGUARD_ADDRESSES=${WIREGUARD_ADDRESSES}
-      - SERVER_COUNTRIES=${SERVER_COUNTRIES}
+      - VPN_PORT_FORWARDING=on
+      - VPN_PORT_FORWARDING_PROVIDER=protonvpn
+      - VPN_ENDPOINT_IP=${PROTONVPN_ENDPOINT_IP}
+      - VPN_ENDPOINT_PORT=${PROTONVPN_ENDPOINT_PORT}
+      - VPN_DNS_ADDRESSES=${PROTONVPN_DNS_ADDRESSES}
+      - WIREGUARD_PRIVATE_KEY=${PROTONVPN_PRIVATE_KEY}
+      - WIREGUARD_PUBLIC_KEY=${PROTONVPN_PUBLIC_KEY}
+      - WIREGUARD_ADDRESSES=${PROTONVPN_ADDRESSES}
       - TZ=${TZ:-America/New_York}
       - HTTPPROXY=off #change to on if you wish to enable
       - SHADOWSOCKS=off #change to on if you wish to enable
@@ -153,7 +179,7 @@ services:
     restart: unless-stopped
 
   qbittorrent:
-    image: linuxserver/qbittorrent:latest
+    image: lscr.io/linuxserver/qbittorrent:latest
     container_name: qbittorrent
     environment:
       - PUID=13005
@@ -168,7 +194,7 @@ services:
     restart: unless-stopped
 
   sabnzbd:
-    image: linuxserver/sabnzbd:latest
+    image: lscr.io/linuxserver/sabnzbd:latest
     container_name: sabnzbd
     environment:
       - PUID=13004
