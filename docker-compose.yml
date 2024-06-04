@@ -158,10 +158,13 @@ services:
       # - 8888:8888/tcp # HTTP proxy
       # - 8388:8388/tcp # Shadowsocks
       # - 8388:8388/udp # Shadowsocks
+      # - ${AIRVPN_FORWARDED_PORT}:${AIRVPN_FORWARDED_PORT}
+      # - ${AIRVPN_FORWARDED_PORT}:${AIRVPN_FORWARDED_PORT}/udp
       - 8090:8090 # port for qbittorrent
     volumes:
       - ${VOLUME_PATH}/gluetun:/tmp/gluetun
     environment:
+      # ProtonVPN
       - VPN_SERVICE_PROVIDER=custom
       - VPN_TYPE=wireguard
       - VPN_PORT_FORWARDING=on
@@ -172,10 +175,17 @@ services:
       - WIREGUARD_PRIVATE_KEY=${PROTONVPN_PRIVATE_KEY}
       - WIREGUARD_PUBLIC_KEY=${PROTONVPN_PUBLIC_KEY}
       - WIREGUARD_ADDRESSES=${PROTONVPN_ADDRESSES}
-      - TZ=${TZ:-America/New_York}
+      - FIREWALL_OUTBOUND_SUBNETS=${PROTONVPN_OUTBOUND_SUBNETS}
+      # AirVPN
+      # - VPN_SERVICE_PROVIDER=airvpn
+      # - VPN_TYPE=wireguard
+      # - WIREGUARD_PRIVATE_KEY=${AIRVPN_PRIVATE_KEY}
+      # - WIREGUARD_PRESHARED_KEY=${AIRVPN_PRESHARED_KEY}
+      # - WIREGUARD_ADDRESSES=${AIRVPN_ADDRESSES}
+      # - SERVER_COUNTRIES=${AIRVPN_COUNTRIES}
+      # - FIREWALL_VPN_INPUT_PORTS=${AIRVPN_FORWARDED_PORT}
       - HTTPPROXY=off #change to on if you wish to enable
       - SHADOWSOCKS=off #change to on if you wish to enable
-      # - FIREWALL_OUTBOUND_SUBNETS=172.20.0.0/16,192.168.0.0/24 #change this in line with your subnet see note on guide.
     restart: unless-stopped
 
   qbittorrent:
@@ -218,6 +228,18 @@ services:
       - TZ=${TZ:-America/New_York}
     ports:
       - 8191:8191
+    restart: unless-stopped
+
+  overseerr:
+    image: sctx/overseerr:latest
+    container_name: overseerr
+    environment:
+      - LOG_LEVEL=debug
+      - TZ=${TZ:-America/New_York}
+    ports:
+      - 5055:5055
+    volumes:
+      - ${VOLUME_PATH}/overseerr:/app/config
     restart: unless-stopped
 
 networks:
