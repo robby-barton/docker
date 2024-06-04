@@ -61,7 +61,7 @@ sonarr:
           - 85c61753df5da1fb2aab6f2a47426b09 # BR-DISK
           - 9c11cd3f07101cdba90a2d81cf0e56b4 # LQ
           - e2315f990da2e2cbfc9fa5b7a6fcfe48 # LQ (Release Title)
-          - 47435ece6b99a0b477caf360e79ba0bb # x265 (HD)
+          # - 47435ece6b99a0b477caf360e79ba0bb # x265 (HD)
           - fbcb31d8dabd2a319072b84fc0b7249c # Extras
 
           # Optional
@@ -70,6 +70,7 @@ sonarr:
           - e1a997ddb54e3ecbfe06341ad323c458 # Obfuscated
           - 06d66ab109d4d2eddb2794d21526d140 # Retags
           - 1b3994c551cbb92a2c781af061f4ab44 # Scene
+          - 9b64dff695c2115facf1b6ea59c9bd07 # x265 (no HDR/DV)
 
           # Misc
           - ec8fa7296b64e8cd390a1600981f3923 # Repack/Proper
@@ -140,13 +141,13 @@ sonarr:
             qualities:
               - WEBDL-1080p
               - WEBRip-1080p
-              - HDTV-1080p
+          - name: HDTV-1080p
           - name: Bluray-720p
           - name: WEB 720p
             qualities:
               - WEBDL-720p
               - WEBRip-720p
-              - HDTV-720p
+          - name: HDTV-720p
           - name: Bluray-480p
           - name: WEB 480p
             qualities:
@@ -325,7 +326,7 @@ radarr:
           - ed38b889b31be83fda192888e2286d83 # BR-DISK
           - 90a6f9a284dff5103f6346090e6280c8 # LQ
           - e204b80c87be9497a8a6eaff48f72905 # LQ (Release Title)
-          - dc98083864ea246d05a42df0d05f81cc # x265 (HD)
+          # - dc98083864ea246d05a42df0d05f81cc # x265 (HD)
           - b8cd450cbfa689c0259a01d9e29ba3d6 # 3D
           - 0a3f082873eb454bde444150b70253cc # Extras
 
@@ -336,6 +337,7 @@ radarr:
           - 7357cf5161efbf8c4d5d0c30b4815ee2 # Obfuscated
           - 5c44f52a8714fdd79bb4d98e2673be1f # Retags
           - f537cf427b64c38c8e36298f657e4828 # Scene
+          - 839bea857ed2c0a8e084f3cbdbd65ecb # x265 (no HDR/DV)
 
           # Streaming Services
           - b3b3a6ac74ecbd56bcdbefa4799fb9df # AMZN
