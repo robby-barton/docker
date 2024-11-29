@@ -1,5 +1,3 @@
-version: "3"
-
 services:
   pihole:
     container_name: pihole
@@ -140,11 +138,28 @@ services:
   recyclarr:
     image: ghcr.io/recyclarr/recyclarr
     container_name: recyclarr
-    user: 1000:1000
     volumes:
       - ${VOLUME_PATH}/recyclarr:/config
     environment:
+      - PUID=13008
+      - PGID=13000
+      - UMASK=002
       - TZ=${TZ:-America/New_York}
+    restart: unless-stopped
+
+  komga:
+    image: ghcr.io/gotson/komga
+    container_name: komga
+    environment:
+      - PUID=13010
+      - PGID=13000
+      - UMASK=002
+      - TZ=${TZ:-America/New_York}
+    volumes:
+      - ${VOLUME_PATH}/komga:/config
+      - ${MEDIA_DIR}/media:/data
+    ports:
+      - 25600:25600
     restart: unless-stopped
 
   gluetun:
@@ -155,16 +170,10 @@ services:
     devices:
       - /dev/net/tun:/dev/net/tun
     ports:
-      # - 8888:8888/tcp # HTTP proxy
-      # - 8388:8388/tcp # Shadowsocks
-      # - 8388:8388/udp # Shadowsocks
-      # - ${AIRVPN_FORWARDED_PORT}:${AIRVPN_FORWARDED_PORT}
-      # - ${AIRVPN_FORWARDED_PORT}:${AIRVPN_FORWARDED_PORT}/udp
       - 8090:8090 # port for qbittorrent
     volumes:
       - ${VOLUME_PATH}/gluetun:/tmp/gluetun
     environment:
-      # ProtonVPN
       - VPN_SERVICE_PROVIDER=custom
       - VPN_TYPE=wireguard
       - VPN_PORT_FORWARDING=on
@@ -176,14 +185,6 @@ services:
       - WIREGUARD_PUBLIC_KEY=${PROTONVPN_PUBLIC_KEY}
       - WIREGUARD_ADDRESSES=${PROTONVPN_ADDRESSES}
       - FIREWALL_OUTBOUND_SUBNETS=${PROTONVPN_OUTBOUND_SUBNETS}
-      # AirVPN
-      # - VPN_SERVICE_PROVIDER=airvpn
-      # - VPN_TYPE=wireguard
-      # - WIREGUARD_PRIVATE_KEY=${AIRVPN_PRIVATE_KEY}
-      # - WIREGUARD_PRESHARED_KEY=${AIRVPN_PRESHARED_KEY}
-      # - WIREGUARD_ADDRESSES=${AIRVPN_ADDRESSES}
-      # - SERVER_COUNTRIES=${AIRVPN_COUNTRIES}
-      # - FIREWALL_VPN_INPUT_PORTS=${AIRVPN_FORWARDED_PORT}
       - HTTPPROXY=off #change to on if you wish to enable
       - SHADOWSOCKS=off #change to on if you wish to enable
     restart: unless-stopped
