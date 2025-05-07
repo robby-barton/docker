@@ -10,4 +10,6 @@ sudo useradd -r qbittorrent -u 13005 -g mediacenter
 sudo useradd -r prowlarr -u 13006 -g mediacenter
 sudo useradd -r animarr -u 13007 -g mediacenter
 sudo useradd -r recyclarr -u 13008 -g mediacenter
+sudo useradd -r tachidesk -u 13009 -g mediacenter
 sudo useradd -r komga -u 13010 -g mediacenter
+sudo useradd -r komf -u 13011 -g mediacenter
