@@ -162,6 +162,43 @@ services:
       - 25600:25600
     restart: unless-stopped
 
+  kavita:
+    image: lscr.io/linuxserver/kavita:latest
+    container_name: kavita
+    environment:
+      - PUID=13010
+      - PGID=13000
+      - UMASK=002
+      - TZ=${TZ:-America/New_York}
+      - DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=true
+    volumes:
+      - ${VOLUME_PATH}/kavita:/config
+      - ${MEDIA_DIR}/media:/data
+    ports:
+      - 5000:5000
+    restart: unless-stopped
+
+  komf:
+    image: sndxr/komf:latest
+    container_name: komf
+    volumes:
+      - ${VOLUME_PATH}/komf:/config
+    environment:
+      - PUID=13011
+      - PGID=13000
+      - UMASK=002
+      - TZ=${TZ:-America/New_York}
+      - KOMF_KOMGA_BASE_URI=http://komga:25600
+      - KOMF_KOMGA_USER=${KOMGA_USERNAME}
+      - KOMF_KOMGA_PASSWORD=${KOMGA_PASSWORD}
+      - KOMF_KAVITA_BASE_URI=http://kavita:5000
+      - KOMF_KAVITA_API_KEY=${KAVITA_API_KEY}
+      # optional jvm options. Example config for low memory usage. Runs guaranteed cleanup up every 3600000ms(1hour)
+      - JAVA_TOOL_OPTIONS=-XX:+UnlockExperimentalVMOptions -XX:+UseShenandoahGC -XX:ShenandoahGCHeuristics=compact -XX:ShenandoahGuaranteedGCInterval=3600000 -XX:TrimNativeHeapInterval=3600000
+    ports:
+      - "8085:8085"
+    restart: unless-stopped
+
   gluetun:
     image: qmcgaw/gluetun:latest
     container_name: gluetun
