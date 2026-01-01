@@ -1,7 +1,7 @@
 services:
   pihole:
     container_name: pihole
-    image: cbcrowe/pihole-unbound:latest
+    image: mpgirro/pihole-unbound:latest
     hostname: ${HOSTNAME}
     domainname: ${DOMAIN_NAME}
     restart: unless-stopped
@@ -35,6 +35,10 @@ services:
       - ${VOLUME_PATH}/pihole/pihole:/etc/pihole:rw
       - ${VOLUME_PATH}/pihole/dnsmasq.d:/etc/dnsmasq.d:rw
       - ${VOLUME_PATH}/pihole/resolv.conf:/etc/resolv.conf
+      - ${VOLUME_PATH}/pihole/99-tailscale.conf:/etc/lighttpd/conf-enabled/99-tailscale.conf:ro
+      - ${VOLUME_PATH}/unbound-pi-hole.conf:/etc/unbound/unbound.conf.d/pi-hole.conf:ro
+
+
 
   dhcphelper:
     build: ./config/dhcp-helper
