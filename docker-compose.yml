@@ -36,7 +36,7 @@ services:
       - ${VOLUME_PATH}/pihole/dnsmasq.d:/etc/dnsmasq.d:rw
       - ${VOLUME_PATH}/pihole/resolv.conf:/etc/resolv.conf
       - ${VOLUME_PATH}/pihole/99-tailscale.conf:/etc/lighttpd/conf-enabled/99-tailscale.conf:ro
-      - ${VOLUME_PATH}/unbound-pi-hole.conf:/etc/unbound/unbound.conf.d/pi-hole.conf:ro
+      - ${VOLUME_PATH}/pihole/unbound-pi-hole.conf:/etc/unbound/unbound.conf.d/pi-hole.conf:ro
 
 
 
