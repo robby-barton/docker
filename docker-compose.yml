@@ -54,6 +54,8 @@ services:
     network_mode: host
     devices:
       - /dev/dri:/dev/dri
+    group_add:
+      - "110" # getent group render | cut -d: -f3
     environment:
       - PUID=13000
       - PGID=13000
@@ -140,24 +142,20 @@ services:
     restart: unless-stopped
 
   recyclarr:
-    image: ghcr.io/recyclarr/recyclarr
+    image: ghcr.io/recyclarr/recyclarr:8
     container_name: recyclarr
+    user: 13008:13000
     volumes:
       - ${VOLUME_PATH}/recyclarr:/config
     environment:
-      - PUID=13008
-      - PGID=13000
-      - UMASK=002
       - TZ=${TZ:-America/New_York}
     restart: unless-stopped
 
   komga:
     image: ghcr.io/gotson/komga
     container_name: komga
+    user: 13010:13000
     environment:
-      - PUID=13010
-      - PGID=13000
-      - UMASK=002
       - TZ=${TZ:-America/New_York}
     volumes:
       - ${VOLUME_PATH}/komga:/config
@@ -185,12 +183,10 @@ services:
   komf:
     image: sndxr/komf:latest
     container_name: komf
+    user: 13011:13000
     volumes:
       - ${VOLUME_PATH}/komf:/config
     environment:
-      - PUID=13011
-      - PGID=13000
-      - UMASK=002
       - TZ=${TZ:-America/New_York}
       - KOMF_KOMGA_BASE_URI=http://komga:25600
       - KOMF_KOMGA_USER=${KOMGA_USERNAME}
